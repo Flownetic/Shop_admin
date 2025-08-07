@@ -4,159 +4,299 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product Upload to Telegram</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            line-height: 1.6;
+        :root {
+            --airbnb-red: #FF385C;
+            --airbnb-dark: #222222;
+            --airbnb-light-gray: #EBEBEB;
+            --airbnb-medium-gray: #DDDDDD;
+            --airbnb-text: #484848;
+            --airbnb-white: #FFFFFF;
+        }
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-            color: #333;
+            padding: 0;
         }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        
+        body {
+            font-family: 'Circular', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            color: var(--airbnb-text);
+            background-color: var(--airbnb-white);
+            line-height: 1.5;
         }
-        h1 {
-            text-align: center;
-            color: #2c3e50;
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 40px;
+            border-bottom: 1px solid var(--airbnb-medium-gray);
+            position: sticky;
+            top: 0;
+            background-color: var(--airbnb-white);
+            z-index: 100;
+        }
+        
+        .logo {
+            color: var(--airbnb-red);
+            font-size: 24px;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo i {
+            margin-right: 8px;
+        }
+        
+        .main-container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+        
+        .header {
             margin-bottom: 30px;
         }
-        .form-group {
-            margin-bottom: 20px;
+        
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--airbnb-dark);
+            margin-bottom: 10px;
         }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        input[type="text"],
-        input[type="url"],
-        textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
+        
+        .header p {
+            color: var(--airbnb-text);
             font-size: 16px;
-            box-sizing: border-box;
         }
-        textarea {
-            height: 120px;
+        
+        .form-container {
+            display: flex;
+            gap: 40px;
+        }
+        
+        .form-section {
+            flex: 1;
+        }
+        
+        .preview-section {
+            flex: 1;
+            background-color: var(--airbnb-light-gray);
+            border-radius: 12px;
+            padding: 25px;
+            height: fit-content;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--airbnb-medium-gray);
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--airbnb-dark);
+        }
+        
+        textarea.form-control {
+            min-height: 120px;
             resize: vertical;
         }
-        button {
-            background-color: #3498db;
-            color: white;
+        
+        .btn {
+            background-color: var(--airbnb-red);
+            color: var(--airbnb-white);
             border: none;
-            padding: 12px 20px;
+            padding: 14px 24px;
             font-size: 16px;
-            border-radius: 4px;
+            font-weight: 600;
+            border-radius: 8px;
             cursor: pointer;
             width: 100%;
-            transition: background-color 0.3s;
+            transition: background-color 0.2s;
         }
-        button:hover {
-            background-color: #2980b9;
+        
+        .btn:hover {
+            background-color: #E61E4D;
         }
-        .preview {
-            margin-top: 30px;
-            padding: 20px;
-            border: 1px dashed #ddd;
-            border-radius: 4px;
-            background-color: #f9f9f9;
+        
+        .preview-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--airbnb-dark);
         }
-        .preview h2 {
-            margin-top: 0;
-            color: #2c3e50;
+        
+        .preview-item {
+            margin-bottom: 15px;
         }
-        .status {
-            margin-top: 20px;
-            padding: 15px;
-            border-radius: 4px;
-            text-align: center;
-            display: none;
+        
+        .preview-item strong {
+            font-weight: 600;
         }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-            display: block;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            display: block;
-        }
+        
         .loading {
-            text-align: center;
             display: none;
+            text-align: center;
             margin-top: 20px;
         }
+        
         .spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             border-radius: 50%;
-            border-top: 4px solid #3498db;
+            border-top: 4px solid var(--airbnb-red);
             width: 30px;
             height: 30px;
             animation: spin 1s linear infinite;
-            margin: 0 auto;
+            margin: 0 auto 15px;
         }
+        
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+            font-weight: 500;
+        }
+        
+        .success {
+            background-color: #E6F7EE;
+            color: #008A5C;
+            display: block;
+        }
+        
+        .error {
+            background-color: #FFEBEC;
+            color: #C13515;
+            display: block;
+        }
+        
+        .photo-preview {
+            margin-top: 15px;
+            max-width: 100%;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        @media (max-width: 768px) {
+            .form-container {
+                flex-direction: column;
+            }
+            
+            .navbar {
+                padding: 15px 20px;
+            }
+            
+            .header h1 {
+                font-size: 26px;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Product Upload to Telegram</h1>
-        
-        <form id="productForm">
-            <div class="form-group">
-                <label for="productNumber">Product Number</label>
-                <input type="text" id="productNumber" required placeholder="Enter product number">
-            </div>
-            
-            <div class="form-group">
-                <label for="productName">Product Name</label>
-                <input type="text" id="productName" required placeholder="Enter product name">
-            </div>
-            
-            <div class="form-group">
-                <label for="productDescription">Description</label>
-                <textarea id="productDescription" required placeholder="Enter product description"></textarea>
-            </div>
-            
-            <div class="form-group">
-                <label for="productLink">Product Link</label>
-                <input type="url" id="productLink" required placeholder="https://example.com/product">
-            </div>
-            
-            <div class="form-group">
-                <label for="productPhoto">Photo URL</label>
-                <input type="url" id="productPhoto" required placeholder="https://example.com/photo.jpg">
-            </div>
-            
-            <button type="submit">Send to Telegram</button>
-        </form>
-        
-        <div class="loading" id="loadingIndicator">
-            <div class="spinner"></div>
-            <p>Sending to Telegram...</p>
+    <nav class="navbar">
+        <a href="#" class="logo">
+            <i class="fas fa-paper-plane"></i>
+            <span>Telegram Uploader</span>
+        </a>
+    </nav>
+    
+    <div class="main-container">
+        <div class="header">
+            <h1>Share your product</h1>
+            <p>Fill in the details below to send your product information to our Telegram channel</p>
         </div>
         
-        <div class="status" id="statusMessage"></div>
-        
-        <div class="preview" id="previewSection">
-            <h2>Preview</h2>
-            <p><strong>Product Number:</strong> <span id="previewNumber">Not provided</span></p>
-            <p><strong>Name:</strong> <span id="previewName">Not provided</span></p>
-            <p><strong>Description:</strong> <span id="previewDescription">Not provided</span></p>
-            <p><strong>Link:</strong> <span id="previewLink">Not provided</span></p>
-            <p><strong>Photo:</strong> <span id="previewPhoto">Not provided</span></p>
+        <div class="form-container">
+            <div class="form-section">
+                <form id="productForm">
+                    <div class="form-group">
+                        <label for="productNumber">Product ID</label>
+                        <input type="text" id="productNumber" class="form-control" required placeholder="PROD-12345">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productName">Product Name</label>
+                        <input type="text" id="productName" class="form-control" required placeholder="Amazing Product">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productDescription">Description</label>
+                        <textarea id="productDescription" class="form-control" required placeholder="Tell us about your product..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productLink">Product URL</label>
+                        <input type="url" id="productLink" class="form-control" required placeholder="https://example.com/product">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="productPhoto">Photo URL</label>
+                        <input type="url" id="productPhoto" class="form-control" required placeholder="https://example.com/photo.jpg">
+                        <img id="photoPreview" class="photo-preview" alt="Photo preview">
+                    </div>
+                    
+                    <button type="submit" class="btn">
+                        <i class="fas fa-paper-plane"></i> Send to Telegram
+                    </button>
+                </form>
+                
+                <div class="loading" id="loadingIndicator">
+                    <div class="spinner"></div>
+                    <p>Sending your product information...</p>
+                </div>
+                
+                <div class="status" id="statusMessage"></div>
+            </div>
+            
+            <div class="preview-section">
+                <h3 class="preview-title">Your listing</h3>
+                
+                <div class="preview-item">
+                    <strong>Product ID:</strong> <span id="previewNumber">Not provided</span>
+                </div>
+                
+                <div class="preview-item">
+                    <strong>Name:</strong> <span id="previewName">Not provided</span>
+                </div>
+                
+                <div class="preview-item">
+                    <strong>Description:</strong> <span id="previewDescription">Not provided</span>
+                </div>
+                
+                <div class="preview-item">
+                    <strong>Link:</strong> <span id="previewLink">Not provided</span>
+                </div>
+                
+                <div class="preview-item">
+                    <strong>Photo:</strong> <span id="previewPhoto">Not provided</span>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -168,6 +308,7 @@
             const previewDescription = document.getElementById('previewDescription');
             const previewLink = document.getElementById('previewLink');
             const previewPhoto = document.getElementById('previewPhoto');
+            const photoPreview = document.getElementById('photoPreview');
             const loadingIndicator = document.getElementById('loadingIndicator');
             const statusMessage = document.getElementById('statusMessage');
             
@@ -189,7 +330,15 @@
             });
             
             document.getElementById('productPhoto').addEventListener('input', function() {
-                previewPhoto.textContent = this.value || 'Not provided';
+                const photoUrl = this.value;
+                previewPhoto.textContent = photoUrl || 'Not provided';
+                
+                if (photoUrl) {
+                    photoPreview.src = photoUrl;
+                    photoPreview.style.display = 'block';
+                } else {
+                    photoPreview.style.display = 'none';
+                }
             });
             
             // Form submission
@@ -212,13 +361,13 @@
                 
                 // Format the message with HTML formatting
                 const message = `
-<b>New Product Submission</b>
+<b>🚀 New Product Submission</b>
 
-<b>Product Number:</b> ${productNumber}
-<b>Name:</b> ${productName}
-<b>Description:</b> ${productDescription}
-<b>Link:</b> <a href="${productLink}">View Product</a>
-<b>Photo:</b> <a href="${productPhoto}">View Photo</a>
+<b>🔢 Product ID:</b> ${productNumber}
+<b>📛 Name:</b> ${productName}
+<b>📝 Description:</b> ${productDescription}
+<b>🔗 Link:</b> <a href="${productLink}">View Product</a>
+<b>🖼 Photo:</b> <a href="${productPhoto}">View Photo</a>
                 `;
                 
                 // Send to Telegram bot
@@ -239,7 +388,7 @@
                     loadingIndicator.style.display = 'none';
                     if (data.ok) {
                         statusMessage.className = 'status success';
-                        statusMessage.textContent = 'Product information sent successfully to Telegram!';
+                        statusMessage.textContent = '✅ Product information sent successfully to Telegram!';
                         statusMessage.style.display = 'block';
                         form.reset();
                         
@@ -249,16 +398,17 @@
                         previewDescription.textContent = 'Not provided';
                         previewLink.textContent = 'Not provided';
                         previewPhoto.textContent = 'Not provided';
+                        photoPreview.style.display = 'none';
                     } else {
                         statusMessage.className = 'status error';
-                        statusMessage.textContent = `Error: ${data.description || 'Unknown error occurred'}`;
+                        statusMessage.textContent = `❌ Error: ${data.description || 'Unknown error occurred'}`;
                         statusMessage.style.display = 'block';
                     }
                 })
                 .catch(error => {
                     loadingIndicator.style.display = 'none';
                     statusMessage.className = 'status error';
-                    statusMessage.textContent = `Network error: ${error.message}`;
+                    statusMessage.textContent = `❌ Network error: ${error.message}`;
                     statusMessage.style.display = 'block';
                 });
             });
