@@ -67,7 +67,7 @@
             background-color: #f2dede;
             color: #a94442;
         }
-        #telegramLink {
+        .loading {
             display: none;
             margin-top: 15px;
         }
@@ -94,9 +94,9 @@
                 <input type="file" id="productImage" accept="image/*" required>
                 <img id="imagePreview" alt="Image Preview">
             </div>
-            <button type="submit">Add Product</button>
+            <button type="submit" id="submitBtn">Add Product</button>
+            <div id="loading" class="loading">Sending to Telegram...</div>
         </form>
-        <a id="telegramLink" href="#" target="_blank">Complete submission in Telegram</a>
         <div id="statusMessage" class="status"></div>
     </div>
 
@@ -117,13 +117,18 @@
         document.getElementById('productForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
+            const submitBtn = document.getElementById('submitBtn');
+            const loading = document.getElementById('loading');
+            const statusElement = document.getElementById('statusMessage');
+            
+            submitBtn.disabled = true;
+            loading.style.display = 'block';
+            statusElement.style.display = 'none';
+            
             const name = document.getElementById('productName').value;
             const description = document.getElementById('productDescription').value;
             const price = document.getElementById('productPrice').value;
             const imageFile = document.getElementById('productImage').files[0];
-            
-            const statusElement = document.getElementById('statusMessage');
-            statusElement.style.display = 'none';
             
             try {
                 // Convert image to base64
@@ -138,25 +143,35 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // Encode the product data for URL
-                const productData = encodeURIComponent(JSON.stringify(product));
-                
-                // Create Telegram link (using Telegram's web interface)
+                // Use a CORS proxy to send to Telegram bot
+                const botToken = '8384873421:AAFSWTNbwmwhXAV1m37y1TZZsA_i-_SDV3g';
                 const chatId = '7789224631';
-                const message = `NEW_PRODUCT:${productData}`;
-                const telegramLink = `https://web.telegram.org/k/#${chatId}?text=${message}`;
+                const messageText = `NEW_PRODUCT:${JSON.stringify(product)}`;
                 
-                // Show the link to user
-                const linkElement = document.getElementById('telegramLink');
-                linkElement.href = telegramLink;
-                linkElement.style.display = 'inline-block';
-                linkElement.textContent = "Click here to complete submission in Telegram";
+                // Using a public CORS proxy (replace with your own if needed)
+                const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+                const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(messageText)}`;
                 
-                showStatus('Please click the Telegram link to complete submission', 'success');
+                const response = await fetch(proxyUrl + telegramUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
                 
+                if (response.ok) {
+                    showStatus('Product added successfully!', 'success');
+                    document.getElementById('productForm').reset();
+                    document.getElementById('imagePreview').style.display = 'none';
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.description || 'Failed to send message');
+                }
             } catch (error) {
                 console.error('Error:', error);
-                showStatus('Error preparing product data. Please try again.', 'error');
+                showStatus(`Error: ${error.message}`, 'error');
+            } finally {
+                submitBtn.disabled = false;
+                loading.style.display = 'none';
             }
         });
         
