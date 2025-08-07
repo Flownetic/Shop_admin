@@ -67,6 +67,10 @@
             background-color: #f2dede;
             color: #a94442;
         }
+        #telegramLink {
+            display: none;
+            margin-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -92,6 +96,7 @@
             </div>
             <button type="submit">Add Product</button>
         </form>
+        <a id="telegramLink" href="#" target="_blank">Complete submission in Telegram</a>
         <div id="statusMessage" class="status"></div>
     </div>
 
@@ -133,23 +138,25 @@
                     timestamp: new Date().toISOString()
                 };
                 
-                // Send to Telegram bot
-                const botToken = '8384873421:AAFSWTNbwmwhXAV1m37y1TZZsA_i-_SDV3g';
+                // Encode the product data for URL
+                const productData = encodeURIComponent(JSON.stringify(product));
+                
+                // Create Telegram link (using Telegram's web interface)
                 const chatId = '7789224631';
-                const messageText = `NEW_PRODUCT:${JSON.stringify(product)}`;
+                const message = `NEW_PRODUCT:${productData}`;
+                const telegramLink = `https://web.telegram.org/k/#${chatId}?text=${message}`;
                 
-                const response = await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(messageText)}`);
+                // Show the link to user
+                const linkElement = document.getElementById('telegramLink');
+                linkElement.href = telegramLink;
+                linkElement.style.display = 'inline-block';
+                linkElement.textContent = "Click here to complete submission in Telegram";
                 
-                if (response.ok) {
-                    showStatus('Product added successfully!', 'success');
-                    document.getElementById('productForm').reset();
-                    document.getElementById('imagePreview').style.display = 'none';
-                } else {
-                    throw new Error('Failed to send message');
-                }
+                showStatus('Please click the Telegram link to complete submission', 'success');
+                
             } catch (error) {
                 console.error('Error:', error);
-                showStatus('Error adding product. Please try again.', 'error');
+                showStatus('Error preparing product data. Please try again.', 'error');
             }
         });
         
